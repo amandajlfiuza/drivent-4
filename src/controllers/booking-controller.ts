@@ -13,43 +13,37 @@ export async function getBooking(req: AuthenticatedRequest, res: Response) {
     if (error.name === "forbiddenError") {
       return res.sendStatus(httpStatus.FORBIDDEN);
     }
-    if (error.name === "paymentRequiredError") {
-      return res.sendStatus(httpStatus.PAYMENT_REQUIRED);
-    }
     return res.sendStatus(httpStatus.NOT_FOUND);
   }
 }
 
 export async function postBooking(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
+  const { roomId } = req.body;
 
   try {
-    //await bookingService.getHotelsWithRooms(Number(userId));
-    return res.sendStatus(httpStatus.OK);
+    const booking = await bookingService.createBooking(Number(userId), Number(roomId));
+    return res.status(httpStatus.OK).send({ bookingId: booking.id });
   } catch (error) {
-    if (error.name === "NotFoundError") {
+    if (error.name === "notFoundError") {
       return res.sendStatus(httpStatus.NOT_FOUND);
     }
-    if (error.name === "CannotListHotelsError") {
-      return res.sendStatus(httpStatus.PAYMENT_REQUIRED);
-    }
-    return res.sendStatus(httpStatus.BAD_REQUEST);
+    return res.sendStatus(httpStatus.FORBIDDEN);
   }
 }
 
 export async function updateBooking(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
+  const { bookingId } = req.params;
+  const { roomId } = req.body;
   
   try {
-    const booking = "a";//wait bookingService.getHotelsWithRooms(Number(userId));
-    return res.status(httpStatus.OK).send(booking);
+    const booking = await bookingService.changeBooking(Number(userId), roomId, Number(bookingId));
+    return res.status(httpStatus.OK).send({ bookingId: booking.id });
   } catch (error) {
-    if (error.name === "NotFoundError") {
+    if (error.name === "notFoundError") {
       return res.sendStatus(httpStatus.NOT_FOUND);
     }
-    if (error.name === "CannotListHotelsError") {
-      return res.sendStatus(httpStatus.PAYMENT_REQUIRED);
-    }
-    return res.sendStatus(httpStatus.BAD_REQUEST);
+    return res.sendStatus(httpStatus.FORBIDDEN);
   }
 }
